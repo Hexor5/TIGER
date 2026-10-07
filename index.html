@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tiger Zone Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Noto+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <span class="mark" aria-hidden="true"></span>
+    <div>
+      <h1>Tiger kahan ho sakta hai?</h1>
+      <p class="sub">Tiger Zone Tracker · location daalo, zone dekho</p>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2><span class="step">1</span>Tiger ki location daalo</h2>
+    <form id="qForm" novalidate>
+      <div class="row">
+        <div class="f"><label for="qLat">Latitude</label><input type="text" class="mono" inputmode="decimal" id="qLat" placeholder="20.8200"><span class="err" id="eLat"></span></div>
+        <div class="f"><label for="qLng">Longitude</label><input type="text" class="mono" inputmode="decimal" id="qLng" placeholder="80.7550"><span class="err" id="eLng"></span></div>
+      </div>
+      <div class="when">
+        <span class="lbl" id="whenLbl">Tiger kab dekha gaya?</span>
+        <div class="chips" role="group" aria-labelledby="whenLbl">
+          <button type="button" class="chip" data-h="0" aria-pressed="true">Abhi</button>
+          <button type="button" class="chip" data-h="6" aria-pressed="false">6 ghante pehle</button>
+          <button type="button" class="chip" data-h="24" aria-pressed="false">Kal</button>
+          <button type="button" class="chip" data-h="48" aria-pressed="false">2 din pehle</button>
+          <button type="button" class="chip" data-h="custom" aria-pressed="false">Date chuno</button>
+        </div>
+        <input type="datetime-local" id="customWhen" hidden aria-label="Date aur time">
+        <span class="err" id="eWhen"></span>
+      </div>
+      <button type="submit" class="go">Pata karo</button>
+      <p class="tip">Map par tap karke bhi location chun sakte ho.</p>
+    </form>
+    <div class="samplenote" id="sampleNote">Abhi sample location dikh rahi hai. Apni location daalte hi ye hat jayegi.</div>
+  </section>
+
+  <section class="result" aria-live="polite">
+    <span class="eyebrow"><span class="step" style="background:var(--bg);color:var(--ink)">2</span>Result</span>
+    <div class="headline" id="headline">–</div>
+    <p id="subline"></p>
+    <div class="ahead" id="ahead"></div>
+  </section>
+
+  <section class="mapcard">
+    <div class="mapwrap" id="mapwrap">
+      <canvas id="map" aria-label="Tiger zone map"></canvas>
+      <canvas id="fly" hidden aria-hidden="true"></canvas>
+      <button type="button" id="skipFly" hidden>Skip</button>
+      <div class="mtop">
+        <div class="seg" role="group" aria-label="Map type">
+          <button type="button" data-layer="sat" aria-pressed="true">Satellite</button>
+          <button type="button" data-layer="street" aria-pressed="false">Map</button>
+        </div>
+        <div class="zoom">
+          <button type="button" id="zin" aria-label="Zoom in">+</button>
+          <button type="button" id="zout" aria-label="Zoom out">−</button>
+          <button type="button" id="zfit" aria-label="Tiger par wapas">◎</button>
+        </div>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span class="sw" style="background:var(--inner)"></span><span>Zyada sambhavna</span>
+        <span class="sw" style="background:var(--outer)"></span><span>Zyada se zyada</span>
+      </div>
+      <div class="info" id="info" hidden></div>
+      <div class="attr" id="attr"></div>
+      <div class="tilenote" id="tilenote" hidden>
+        <span>Is preview mein asli satellite photo load nahi hoti. Neeche "Google Earth mein dekho" dabao, ya downloaded file Chrome mein kholo.</span>
+        <button type="button" id="tilenoteX" aria-label="Band karo">×</button>
+      </div>
+    </div>
+    <div class="mapbar">
+      <a class="btn sat" id="earthLink" href="#" target="_blank" rel="noopener">Google Earth mein dekho (asli satellite)</a>
+      <a class="btn" id="gmapLink" href="#" target="_blank" rel="noopener">Google Maps satellite</a>
+      <button type="button" class="btn" id="replay">Space se dobara dekho</button>
+      <button type="button" class="btn" id="soundBtn" aria-pressed="true">Awaaz: On</button>
+    </div>
+  </section>
+
+  <details class="card" id="histBox">
+    <summary>Pichhli locations (<span id="histCount">0</span>)</summary>
+    <ul class="hist" id="hist"></ul>
+    <p class="note">Jitni zyada locations daaloge, tiger ki asli speed utni sahi niklegi. 4 ya zyada location hone par speed inhi se nikalti hai.</p>
+    <div class="mapbar" style="padding:10px 0 0">
+      <button type="button" class="btn danger" id="clearBtn">Sab saaf karo (naya tiger)</button>
+      <button type="button" class="btn" id="dlBtn">File download karo</button>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>Speed setting</summary>
+    <div class="row" style="margin-top:0">
+      <div class="f"><label for="setAvg">Aam speed (km/din)</label><input type="number" id="setAvg" min="0.5" step="0.5"></div>
+      <div class="f"><label for="setMax">Zyada se zyada (km/din)</label><input type="number" id="setMax" min="0.5" step="0.5"></div>
+    </div>
+    <p class="note">Ye tab use hoti hai jab location kam hon. Apne forest officer ke anubhav ke hisaab se badal sakte ho.</p>
+  </details>
+
+  <p class="foot">Kaise nikalta hai: doori = speed × time. Peela circle = aam speed se, laal circle = zyada se zyada speed se. Ye sambhavna batata hai, pakki location nahi. Data isi phone/browser mein save rehta hai.</p>
+</div>
+
+<script id="seed" type="application/json">null</script>
+<script id="app-js" src="js/app.js"></script>
+</body>
+</html>
